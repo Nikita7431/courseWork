@@ -42,6 +42,7 @@ function BookingList() {
     const error = useSelector((state: RootState) => state.auth.error);
 
     useEffect(() => {
+        
         const fetchData = async () => {
             try {
                 const response = await fetch('https://localhost:7244/api/Values');
@@ -63,13 +64,23 @@ function BookingList() {
 
     //}, [dispatch]);
 
-    const FetchMotoBooking = async (motorcycle) => {
+    const FetchMotoBooking = async (motorcycle, regPeopleModel) => {
         const formData = new FormData();
         //if (uId != 0) {
         //    formData.append('idUser', uId);
         //}
         formData.append('idMoto', motorcycle.idMotorcycle);
-        
+        formData.append('Id', motorcycle.idMotorcycle);
+        formData.append('Name', motorcycle.name);
+        formData.append('Price', motorcycle.price);
+        formData.append('Text', motorcycle.text);
+       
+            formData.append('IdP', regPeopleModel.id.toString());
+            formData.append('NameP', regPeopleModel.name);
+            formData.append('EmailP', regPeopleModel.email);
+            formData.append('PhoneP', regPeopleModel.phone);
+            formData.append('AdressP', regPeopleModel.Adress);
+       
 
 
 
@@ -105,7 +116,7 @@ function BookingList() {
                             </div>
                             {booking.regPeopleModel.id}: {booking.regPeopleModel.name}, {booking.regPeopleModel.email}, {booking.regPeopleModel.phone}
                         </div>
-                        <Button variant="danger" onClick={() => FetchMotoBooking(booking.motorcycle)} >Удалить</Button>
+                        <Button variant="danger" onClick={() => FetchMotoBooking(booking.motorcycle, booking.regPeopleModel)} >Удалить</Button>
                     </ListGroup.Item>
                 </Col>
             ))}

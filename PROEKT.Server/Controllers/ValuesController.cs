@@ -29,22 +29,22 @@ namespace PROEKT.Server.Controllers
         }
 
         [HttpPost("NewBooking")]
-        public async Task<IActionResult> NewMoto([FromForm] MotoModel2 model)
+        public async Task<IActionResult> NewMoto([FromForm] MotoModel4 model)
         {
             //Console.WriteLine(login);
-            //Console.WriteLine(password);
+            Console.WriteLine(model.IdP);
 
-            regPeopleModel.Id = LoginPeople.Id;
-            regPeopleModel.Name = LoginPeople.Name;
-            regPeopleModel.Email = LoginPeople.Email;
-            regPeopleModel.Phone = LoginPeople.Phone;
-            regPeopleModel.Adress = LoginPeople.Adress;
+            regPeopleModel.Id = Convert.ToInt32(model.IdP);
+            regPeopleModel.Name = model.NameP;
+            regPeopleModel.Email = model.EmailP;
+            regPeopleModel.Phone = model.PhoneP;
+            regPeopleModel.Adress = model.AdressP;
 
 
             string connectionString = "SERVER=localhost;DATABASE=motorcycle_shop;UID=root;PASSWORD=12345;";
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                MySqlCommand cmd = new MySqlCommand($"INSERT INTO booking (idbooking, idUser,idMotorcycle) VALUES ('{model.Id+ regPeopleModel.Id}', '{regPeopleModel.Id}','{model.Id}')", connection);
+                MySqlCommand cmd = new MySqlCommand($"INSERT INTO booking (idbooking, idUser,idMotorcycle) VALUES ('{model.Id + regPeopleModel.Id}', '{regPeopleModel.Id}','{model.Id}')", connection);
                 connection.Open();
                 cmd.ExecuteNonQuery();
                 connection.Close();
@@ -52,16 +52,19 @@ namespace PROEKT.Server.Controllers
             return Ok();
         }
         [HttpPost("DelBooking")]
-        public async Task<IActionResult> DelMoto([FromForm] MotoModel3 model)
+        public async Task<IActionResult> DelMoto([FromForm] MotoModel4 model)
         {
+            regPeopleModel.Id = Convert.ToInt32(model.IdP);
+
+            int sum = Convert.ToInt32(model.IdP) + Convert.ToInt32(model.Id);
             //Console.WriteLine(login);
             //Console.WriteLine(password);
             //Console.WriteLine(model.Id);
-            //Console.WriteLine(password);
+            Console.WriteLine(sum);
             string connectionString = "SERVER=localhost;DATABASE=motorcycle_shop;UID=root;PASSWORD=12345;";
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                MySqlCommand cmd = new MySqlCommand($"DELETE FROM booking WHERE idMotorcycle = {model.idMoto}", connection);
+                MySqlCommand cmd = new MySqlCommand($"DELETE FROM booking WHERE idbooking = {sum} ", connection);
                 connection.Open();
                 cmd.ExecuteNonQuery();
                 connection.Close();
@@ -90,14 +93,18 @@ namespace PROEKT.Server.Controllers
                         {
                             idMotorcycle = reader.GetInt32("idMotorcycle")
                         };
-                       
+                        booking.regPeopleModel.Id = reader.GetInt32("idUser");
+
                         bookings.Add(booking);
                     }
+                 
                 }
 
-           
+
                 foreach (var booking in bookings)
                 {
+                   
+
                     MySqlCommand cmd2 = new MySqlCommand("SELECT * FROM motorcycle WHERE idMotorcycle = @idMotorcycle", connection);
                     cmd2.Parameters.AddWithValue("@idMotorcycle", booking.Motorcycle.idMotorcycle);
                     using (MySqlDataReader reader2 = cmd2.ExecuteReader())
@@ -107,22 +114,28 @@ namespace PROEKT.Server.Controllers
                             booking.Motorcycle.Name = reader2.GetString("Name");
                             booking.Motorcycle.Price = reader2.GetString("Price");
                         }
-                    }
-
-                    MySqlCommand cmd3 = new MySqlCommand("SELECT * FROM user WHERE idUser = @idUser", connection);
-                    cmd3.Parameters.AddWithValue("@idUser", booking.regPeopleModel.Id);
-                    using (MySqlDataReader reader3 = cmd3.ExecuteReader())
-                    {
-                        if (reader3.Read())
-                        {
-                            booking.regPeopleModel.Name = reader3.GetString("name");
-                            booking.regPeopleModel.Phone = reader3.GetString("phone");
-                            booking.regPeopleModel.Email = reader3.GetString("email");
-                        }
+                   
                     }
                 }
+                    foreach (var booking in bookings)
+                    {
+                   
+                        MySqlCommand cmd3 = new MySqlCommand("SELECT * FROM user WHERE idUser = @idUser", connection);
+                        cmd3.Parameters.AddWithValue("@idUser", booking.regPeopleModel.Id);
+                        using (MySqlDataReader reader3 = cmd3.ExecuteReader())
+                        {
+                            while (reader3.Read())
+                            {
+                                booking.regPeopleModel.Name = reader3.GetString("name");
+                                booking.regPeopleModel.Phone = reader3.GetString("phone");
+                                booking.regPeopleModel.Email = reader3.GetString("email");
+                            }
+                           
+                        }
+                    }
 
                 connection.Close();
+
             }
 
             return Ok(bookings);
@@ -139,5 +152,18 @@ namespace PROEKT.Server.Controllers
 
 
     }
+    public class MotoModel4:MotoModel2
+    {
+        //public int idUser { get; set; }
+      
+        public int IdP { get; set; }
+        public string NameP { get; set; }
+        public string EmailP { get; set; }
+        public string PhoneP { get; set; }
+        public string AdressP { get; set; }
 
+
+
+
+    }
 }

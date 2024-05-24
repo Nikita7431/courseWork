@@ -61,20 +61,7 @@ const FetchMotoCard = () => {
     //};
 
 
-    const FetchMotoBooking = async (motorcycle) => {
-        const formData = new FormData();
-        formData.append('Id', motorcycle.idMotorcycle);
-        formData.append('Name', motorcycle.name);
-        formData.append('Price', motorcycle.price);
-        formData.append('Text', motorcycle.text);
-
-       
-
-        const response = await fetch('https://localhost:7244/api/Values/NewBooking', {
-            method: 'POST',
-            body: formData,
-        });
-    }
+    
     const dispatch: AppDispatch = useDispatch();
     const user = useSelector((state: RootState) => state.auth.User);
     const userStatus = useSelector((state: RootState) => state.auth.status);
@@ -84,6 +71,26 @@ const FetchMotoCard = () => {
     const [ia, seIa] = useState<string>('');
     /*const isAdmin = useSelector((state: RootState) => state.auth.isAdmin, shallowEqual);*/
     const [motorcycles, setMotorcycles] = useState<Motorcycle[]>([]);
+
+    const FetchMotoBooking = async (motorcycle) => {
+        const formData = new FormData();
+        formData.append('Id', motorcycle.idMotorcycle);
+        formData.append('Name', motorcycle.name);
+        formData.append('Price', motorcycle.price);
+        formData.append('Text', motorcycle.text);
+        if (user) {
+            formData.append('IdP', user.id.toString());
+            formData.append('NameP', user.name);
+            formData.append('EmailP', user.email);
+            formData.append('PhoneP', user.phone);
+            formData.append('AdressP', user.adress);
+        }
+        const response = await fetch('https://localhost:7244/api/Values/NewBooking', {
+            method: 'POST',
+            body: formData,
+        });
+    }
+
     useEffect(() => {
        
             fetch('https://localhost:7244/api/Motorcycle')
@@ -155,8 +162,8 @@ const FetchMotoCard = () => {
                                         <Card.Title>{motorcycle.name}</Card.Title>
                                         <Card.Text>
                                             <p>{motorcycle.idMotorcycle}</p>
-                                            <p>{motorcycle.price}</p>
-                                            {motorcycle.text }
+                                            <p>Цена: {motorcycle.price}</p>
+                                            Описание: {motorcycle.text }
                                         </Card.Text>
                                           <Button variant="primary" onClick={() => handleShowWriteModal(motorcycle)}>Добавить</Button>
                                         <Button variant="success" onClick={() => handleShowModal(motorcycle)} >Изменить</Button>
@@ -205,8 +212,8 @@ const FetchMotoCard = () => {
                                             <Card.Title>{motorcycle.name}</Card.Title>
                                             <Card.Text>
                                                 <p>{motorcycle.idMotorcycle}</p>
-                                                <p>{motorcycle.price}</p>
-                                                {motorcycle.text}
+                                                <p>Цена: {motorcycle.price}</p>
+                                               Описание: {motorcycle.text}
                                             </Card.Text>
                                             <Button variant="primary" onClick={() => FetchMotoBooking(motorcycle)}>Забронировать</Button>
                                         </Card.Body>
